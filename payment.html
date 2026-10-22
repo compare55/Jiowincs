@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Deposit Payment</title><link rel="stylesheet" href="style.css"><style>
+body{background:#f4f2fb;color:#201a35}.pay-page{max-width:520px;margin:24px auto;padding:18px}.pay-card{background:#fff;border-radius:24px;padding:22px;box-shadow:0 8px 30px #1a123012}.pay-top{display:flex;align-items:center;gap:12px}.back-link{border:0;background:#f1eff8;border-radius:50%;width:42px;height:42px;font-size:22px;cursor:pointer}.pay-title{font-size:1.5rem;font-weight:800}.method-name{text-align:center;font-size:1.15rem;font-weight:700;margin:22px 0}.qr-placeholder{min-height:210px;border:1px solid #e6e1f0;background:#faf9fe;border-radius:18px;display:flex;align-items:center;justify-content:center;text-align:center;padding:12px;color:#77718e}.qr-placeholder img{display:block;width:100%;max-width:390px;height:auto;object-fit:contain;border-radius:8px;margin:auto}.pay-card label{display:block;margin:14px 0 6px;font-weight:600}.amount-presets{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:9px;margin:10px 0 4px}.amount-preset{border:1px solid #d9d1ef;background:#faf9ff;color:#34215f;border-radius:10px;padding:11px 6px;font:inherit;font-weight:700;cursor:pointer}.amount-preset.active{background:#5524c7;border-color:#5524c7;color:#fff;box-shadow:0 0 0 2px #5524c722}.amount-hint{font-size:.82rem;color:#77718e;margin:5px 0 8px}.pay-card input{width:100%;box-sizing:border-box;padding:13px;border:1px solid #d9d5e6;border-radius:10px;font:inherit}.pay-submit:disabled{opacity:.65;cursor:wait}.pay-submit{width:100%;margin-top:18px;background:#5524c7;color:white;border:0;border-radius:12px;padding:14px;font-weight:700;font-size:1rem;cursor:pointer}.notice{font-size:.86rem;color:#77718e;line-height:1.5}.status{margin-top:12px;padding:10px;border-radius:10px;background:#f6f3ff;color:#514477;display:none}.status.success{background:#ecfdf3;color:#166534;border:1px solid #bbf7d0;padding:20px 16px;text-align:center}.success-icon{width:76px;height:76px;border-radius:50%;margin:0 auto 12px;background:#dcfce7;color:#15803d;display:flex;align-items:center;justify-content:center;font-size:46px;font-weight:800}.success-title{font-size:1.35rem;font-weight:800;margin:4px 0}.success-amount{font-size:2rem;font-weight:900;margin:8px 0}.success-detail{font-size:.9rem;line-height:1.5;margin-top:8px}.status.rejected{background:#fff1f2;color:#9f1239;border:1px solid #fecdd3;padding:16px}.pending-status{font-size:.95rem;line-height:1.5}
+/* Full-screen approval confirmation */
+.approval-overlay{position:fixed;inset:0;z-index:99999;display:none;align-items:center;justify-content:center;padding:22px;box-sizing:border-box;background:radial-gradient(circle at top,#7c3aed 0%,#381477 45%,#160b2d 100%);color:#fff;text-align:center;overflow:auto}
+.approval-overlay.show{display:flex;animation:approvalFadeIn .28s ease-out}
+.approval-panel{width:min(100%,480px);margin:auto;padding:30px 22px;border:1px solid #ffffff35;border-radius:28px;background:#ffffff12;box-shadow:0 24px 80px #0005;backdrop-filter:blur(12px);animation:approvalPop .4s cubic-bezier(.2,.8,.2,1)}
+.approval-check{width:104px;height:104px;margin:0 auto 20px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:#dcfce7;color:#15803d;font-size:64px;font-weight:900;box-shadow:0 0 0 10px #dcfce725;animation:approvalPulse 1.2s ease-out 1}
+.approval-heading{font-size:clamp(1.8rem,7vw,2.5rem);line-height:1.12;font-weight:900;margin:8px 0 12px}
+.approval-subtitle{font-size:1rem;color:#eee7ff;line-height:1.5}
+.approval-credit{font-size:clamp(2.5rem,10vw,3.7rem);font-weight:950;line-height:1.1;margin:22px 0;color:#86efac;text-shadow:0 3px 24px #22c55e45}
+.approval-receipt{margin:20px 0 0;padding:14px;border-radius:14px;background:#0002;border:1px solid #ffffff25;line-height:1.7;overflow-wrap:anywhere}
+.approval-close{width:100%;margin-top:22px;padding:15px 18px;border:0;border-radius:14px;background:#fff;color:#40168b;font-size:1rem;font-weight:800;cursor:pointer}
+.approval-close:focus-visible{outline:3px solid #86efac;outline-offset:3px}
+@keyframes approvalFadeIn{from{opacity:0}to{opacity:1}}
+@keyframes approvalPop{from{transform:translateY(14px) scale(.96);opacity:.4}to{transform:translateY(0) scale(1);opacity:1}}
+@keyframes approvalPulse{0%{transform:scale(.7)}65%{transform:scale(1.08)}100%{transform:scale(1)}}
+@media(prefers-reduced-motion:reduce){.approval-overlay.show,.approval-panel,.approval-check{animation:none}}
+</style></head><body><main class="pay-page"><section class="pay-card"><div class="pay-top"><button class="back-link" onclick="history.back()" aria-label="Back">‹</button><div class="pay-title">Deposit</div></div><div id="methodName" class="method-name">Payment method</div><div class="qr-placeholder"><img src="phonepe-payment-qr.jpeg" alt="Scan and pay using PhonePe QR code"></div><form id="paymentForm"><label for="amount">Deposit amount (₹)</label><div class="amount-presets" id="amountPresets" aria-label="Choose deposit amount"><button class="amount-preset" type="button" data-amount="100">₹100</button><button class="amount-preset" type="button" data-amount="200">₹200</button><button class="amount-preset" type="button" data-amount="500">₹500</button><button class="amount-preset" type="button" data-amount="1000">₹1,000</button><button class="amount-preset" type="button" data-amount="2000">₹2,000</button><button class="amount-preset" type="button" data-amount="5000">₹5,000</button></div><p class="amount-hint">Choose an amount above or enter a custom amount below.</p><input id="amount" type="number" min="1" max="100000" step="1" required placeholder="Enter amount"><label for="utr">Transaction ID / UTR (after paying)</label><input id="utr" maxlength="80" required placeholder="Enter UTR / transaction reference"><button class="pay-submit" type="submit">Submit payment details</button></form><p class="notice">Your request goes to the Telegram admin for review. The wallet shown here is a browser demo wallet; this does not verify bank settlement or provide a secure real-money ledger.</p><div id="status" class="status" role="status"></div></section></main>
+<div id="approvalOverlay" class="approval-overlay" role="dialog" aria-modal="true" aria-labelledby="approvalHeading" aria-describedby="approvalSubtitle" hidden>
+  <div class="approval-panel">
+    <div class="approval-check" aria-hidden="true">✓</div>
+    <div id="approvalHeading" class="approval-heading">Payment Approved!</div>
+    <div id="approvalSubtitle" class="approval-subtitle">Your deposit has been approved.</div>
+    <div id="approvalCredit" class="approval-credit">+₹0</div>
+    <div class="approval-receipt"><div><strong>Payment Status:</strong> Approved</div><div id="approvalRequestId"></div><div>Amount credited to your Jiowin demo wallet.</div></div>
+    <button id="approvalClose" class="approval-close" type="button">Continue to Jiowin</button>
+  </div>
+</div>
+<script src="wallet-cleanup.js"></script><script>
+const names={'paytm':'Paytm','phonepe':'PhonePe','upi':'UPI','phonepe-p2p':'PhonePe (P2P)','upi-p2p':'UPI (P2P)','paytm-p2p':'Paytm (P2P)','gpay':'Google Pay (P2P)'};
+const method=new URLSearchParams(window.location.search).get('method')||'upi';
+document.getElementById('methodName').textContent=names[method]||'UPI';
+document.title=(names[method]||'UPI')+' Deposit';
+const form=document.getElementById('paymentForm');
+const amountInput=document.getElementById('amount');
+const presetButtons=[...document.querySelectorAll('.amount-preset')];
+presetButtons.forEach(button=>button.addEventListener('click',()=>{amountInput.value=button.dataset.amount;presetButtons.forEach(item=>item.classList.toggle('active',item===button));amountInput.dispatchEvent(new Event('input',{bubbles:true}));}));
+amountInput.addEventListener('input',()=>{presetButtons.forEach(button=>button.classList.toggle('active',Number(button.dataset.amount)===Number(amountInput.value)&&amountInput.value!==''));});
+const statusBox=document.getElementById('status');
+let submitting=false, pollTimer=null, activeRequestId=null;
+const PENDING_KEY='jiowin_pending_deposit_request';
+function showPending(id){
+  statusBox.className='status pending-status'; statusBox.style.display='block';
+  statusBox.textContent='Request '+id+' sent to Telegram admin. Waiting for the admin decision… Keep this page open; this status will update automatically.';
+}
+function showSuccess(result){
+  statusBox.className='status success'; statusBox.style.display='block';
+  statusBox.innerHTML='<strong>Payment Approved!</strong> +₹'+Number(result.amount).toLocaleString('en-IN');
+  const overlay=document.getElementById('approvalOverlay');
+  document.getElementById('approvalCredit').textContent='+₹'+Number(result.amount).toLocaleString('en-IN');
+  document.getElementById('approvalRequestId').textContent='Request ID: '+String(result.id||'');
+  overlay.hidden=false; overlay.classList.add('show');
+  document.body.style.overflow='hidden';
+  document.getElementById('approvalClose').focus({preventScroll:true});
+}
+function closeApprovalOverlay(){
+  const overlay=document.getElementById('approvalOverlay');
+  overlay.classList.remove('show'); overlay.hidden=true; document.body.style.overflow='';
+}
+document.getElementById('approvalClose').addEventListener('click',closeApprovalOverlay);
+document.addEventListener('keydown',event=>{if(event.key==='Escape'){const overlay=document.getElementById('approvalOverlay');if(!overlay.hidden)closeApprovalOverlay();}});
+function showRejected(result){
+  statusBox.className='status rejected'; statusBox.style.display='block';
+  statusBox.innerHTML='<strong>Payment Request Rejected</strong><div class="success-detail">Request ID: '+escapeHtml(result.id)+'</div><div class="success-detail">Please contact the admin if you think this is a mistake.</div>';
+}
+function escapeHtml(value){return String(value||'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
+function applyDemoWalletOnce(result){
+  const appliedKey='jiowin_applied_'+result.id;
+  if(localStorage.getItem(appliedKey)) return;
+  const amount=Number(result.amount);
+  const balance=Number(localStorage.getItem('demoBalance')||0);
+  localStorage.setItem('demoBalance',String(balance+amount));
+  let tx=[];try{tx=JSON.parse(localStorage.getItem('demoTx')||'[]');if(!Array.isArray(tx))tx=[];}catch{}
+  tx.unshift({type:'add',amount,note:'Admin-approved deposit (browser demo)',time:new Date().toLocaleTimeString()});
+  localStorage.setItem('demoTx',JSON.stringify(tx.slice(0,30)));
+  localStorage.setItem(appliedKey,'1');
+}
+async function checkRequest(requestId){
+  try{
+    const check=await fetch('/api/requests/'+encodeURIComponent(requestId),{headers:{'Accept':'application/json'},cache:'no-store'});
+    if(!check.ok) return false;
+    const result=await check.json();
+    if(result.status==='APPROVED'){
+      if(pollTimer){clearInterval(pollTimer);pollTimer=null;}
+      applyDemoWalletOnce(result); localStorage.removeItem(PENDING_KEY); showSuccess(result); return true;
+    }
+    if(result.status==='REJECTED'){
+      if(pollTimer){clearInterval(pollTimer);pollTimer=null;}
+      localStorage.removeItem(PENDING_KEY); showRejected(result); return true;
+    }
+  }catch(err){console.error('Request status check failed:',err);}
+  return false;
+}
+function beginPolling(requestId){
+  activeRequestId=requestId; localStorage.setItem(PENDING_KEY,requestId); showPending(requestId);
+  if(pollTimer) clearInterval(pollTimer);
+  checkRequest(requestId);
+  pollTimer=setInterval(()=>{if(activeRequestId)checkRequest(activeRequestId);},3000);
+}
+form.addEventListener('submit', async (event)=>{
+  event.preventDefault(); if(submitting) return;
+  const amount=Number(document.getElementById('amount').value);
+  const utr=document.getElementById('utr').value.trim();
+  if(!Number.isInteger(amount)||amount<1||amount>100000){statusBox.className='status';statusBox.textContent='Amount must be a whole number between ₹1 and ₹1,00,000.';statusBox.style.display='block';return;}
+  if(!utr){statusBox.className='status';statusBox.textContent='Payment UTR / transaction reference is required.';statusBox.style.display='block';return;}
+  statusBox.className='status';statusBox.style.display='block';statusBox.textContent='Sending request to Jiowin admin…';
+  submitting=true; const button=form.querySelector('button[type="submit"]');button.disabled=true;
+  try{
+    let customerId=localStorage.getItem('jiowinCustomerId');
+    if(!customerId||!/^[A-Za-z0-9_-]{6,80}$/.test(customerId)){customerId='J'+Math.random().toString(36).slice(2,12).toUpperCase()+Date.now().toString(36).toUpperCase();localStorage.setItem('jiowinCustomerId',customerId);}
+    const response=await fetch('/api/requests',{method:'POST',headers:{'Content-Type':'application/json','Accept':'application/json'},body:JSON.stringify({type:'deposit',amount,utr,customerId})});
+    const raw=await response.text();let data;try{data=JSON.parse(raw);}catch{throw new Error('Server returned a non-JSON response (HTTP '+response.status+'). Check that the latest Jiowin Node Web Service is deployed, not a Static Site.');}
+    if(!response.ok)throw new Error(data.error||('Server request failed (HTTP '+response.status+').'));
+    beginPolling(data.id);
+  }catch(error){console.error('Add Money request failed:',error);statusBox.className='status';statusBox.style.display='block';statusBox.textContent='Could not send request: '+(error&&error.message?error.message:'Network error')+' Open /api/health on this same Render URL and confirm telegramConfigured is true.';}
+  finally{submitting=false;button.disabled=false;}
+});
+// Resume checking after accidental refresh or returning to the same payment page.
+const savedPending=localStorage.getItem(PENDING_KEY);
+if(savedPending) beginPolling(savedPending);
+</script><script src="support-chat.js"></script>
+</body></html>
